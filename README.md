@@ -6,7 +6,7 @@ DSH（DeepSeek Harness）插件：Web GUI 底部余额 pill（`conversation.comp
 
 ## 使用方法
 
-1. 安装：`pnpm install` 后 `dsh plugin --profile web add ./dsh-deepseek-provider`，重启 `dsh web`；
+1. 安装：`dsh plugin --profile web add youmu129/dsh-deepseek-provider`，重启 `dsh web`（GitHub 简写规格，安装时自动装依赖；lib 构建产物已入库，无需本地构建）；
 2. 凭证：默认引用 `DEEPSEEK_API_KEY`（与内置 DeepSeek 路由同一把钥匙，零新增配置）；未配置时 pill 显示「未配置」；
 3. 使用：DeepSeek 会话输入卡片下方出现 pill，点击弹面板看明细并手动刷新；非 DeepSeek 会话 pill 隐藏，切回即刻有数据。
 
