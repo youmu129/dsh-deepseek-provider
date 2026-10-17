@@ -1,0 +1,48 @@
+{
+  "name": "dsh-deepseek-provider",
+  "version": "0.1.0",
+  "description": "DSH plugin (dual-half): ships a Web GUI balance pill (conversation.composer.dock) for the built-in deepseek provider route — account balance per currency (total / granted / topped-up) fetched from GET {baseUrl}/user/balance at api.deepseek.com, with the API key resolved via the DSH credential seam. No provider seeding: the llm-pi-ai catalog already ships the deepseek route.",
+  "type": "module",
+  "main": "lib/index.js",
+  "exports": {
+    ".": "./lib/index.js",
+    "./client": "./lib/client.js",
+    "./cordis.patch.yml": "./cordis.patch.yml",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "cordis.patch.yml",
+    "lib"
+  ],
+  "keywords": [
+    "dsh-plugin"
+  ],
+  "license": "MIT",
+  "scripts": {
+    "build": "tsdown && node scripts/wrap-client.mjs",
+    "dev": "tsdown --watch",
+    "dev:client": "node scripts/wrap-client.mjs --watch",
+    "test": "node --import tsx test/run-all.ts"
+  },
+  "dependencies": {
+    "@deepseek-ai/schemastery": "^3.18.4"
+  },
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    },
+    "client": {
+      "platform": "web",
+      "inject": [
+        "@deepseek-ai/dsh-client-locale"
+      ]
+    }
+  },
+  "devDependencies": {
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "tsdown": "^0.23.0",
+    "tsx": "^4.23.15",
+    "typescript": "^7.0.2"
+  }
+}

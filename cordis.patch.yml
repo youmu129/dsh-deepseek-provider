@@ -1,0 +1,17 @@
+# Bundle layer of dsh-deepseek-provider (v0.1.0).
+#
+# 本插件不播种 provider（DSH 的 llm-pi-ai 目录已内置 deepseek 路由，Models 页
+# 可管理），patch 只插入本插件自身的挂载行：宿主半面（src/index.ts）注册
+# 余额 API——经 DSH 凭证机制按 apiKeyEnv 引用名解析 DeepSeek API Key，直连
+# api.deepseek.com 的 GET /user/balance，经 /api/deepseek-balance/* 供给
+# client 半面的底部余额 pill（conversation.composer.dock）。
+#
+# 凭证不落此文件：余额查询经 apiKeyEnv 引用 DEEPSEEK_API_KEY，由 harness
+# 凭证机制按请求解析。
+- insert:
+    - id: dsh-deepseek-provider
+      name: 'dsh-deepseek-provider'
+      config:
+        balance:
+          pollIntervalMs: 0
+          requestTimeoutMs: 10000
