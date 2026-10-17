@@ -29,9 +29,9 @@ export function apply(ctx: any) {
   // 与官方「会话统计 / Token 用量」（id stats, order 0）、plan-usage 套餐 pill
   // （id plan-usage, order 10）、zhipu-usage pill（id zhipu-usage, order 15）、
   // raven-usage pill（id raven-usage, order 20）同一座位链，order 25 排末位。
-  // 仅当前会话选用内置 deepseek provider 时显示（座位 inject 面按 entry×会话
-  // 绑定模型目录，见 modelSelectionHooks）；pill 显示账户余额摘要，面板按币种
-  // 展示总额 / 赠金 / 充值余额与账户可用性。
+  // 仅当前会话选用内置 DeepSeek provider（deepseek-official / deepseek 路由）时
+  // 显示（座位 inject 面按 entry×会话绑定模型目录，见 modelSelectionHooks）；pill
+  // 显示账户余额摘要，面板按币种展示总额 / 赠金 / 充值余额与账户可用性。
   const BalancePill = createBalancePill(ctx)
   ctx.effect(
     () =>

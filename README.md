@@ -2,9 +2,9 @@
 
 DSH（DeepSeek Harness）插件（双半面 bundle），一个包交付一件事：
 
-**账号余额展示**：Web GUI 底部状态 pill（`conversation.composer.dock`，与官方「会话统计 / Token 用量」、plan-usage 套餐 pill、zhipu-usage / raven-usage pill 同一座位链，order 25）——**仅当前会话选用内置 `deepseek` provider 时显示**；pill 显示账户余额摘要（品牌 + 主币种总额），点击开面板展示按币种的总额 / 赠金 / 充值余额与账户可用性。数据经 host 半面 `/api/deepseek-balance/*` 同源路由取自 DeepSeek 开放平台 `GET /user/balance`。
+**账号余额展示**：Web GUI 底部状态 pill（`conversation.composer.dock`，与官方「会话统计 / Token 用量」、plan-usage 套餐 pill、zhipu-usage / raven-usage pill 同一座位链，order 25）——**仅当前会话选用内置 DeepSeek provider（`deepseek-official` 路由；兼容 pi-ai 目录 `deepseek` 路由）时显示**；pill 显示账户余额摘要（品牌 + 主币种总额），点击开面板展示按币种的总额 / 赠金 / 充值余额与账户可用性。数据经 host 半面 `/api/deepseek-balance/*` 同源路由取自 DeepSeek 开放平台 `GET /user/balance`。
 
-**本插件不播种 provider**：DSH 的 `llm-pi-ai` 目录已内置 `deepseek` 路由（Models 页可管理），无需也无权重复注册。
+**本插件不播种 provider**：DSH 已内置 DeepSeek 供应商（web profile 走 `llm-deepseek-api-key` 条目，路由 id `deepseek-official`；Models 页可管理），无需也无权重复注册。
 
 ## 用法
 
@@ -22,7 +22,7 @@ dsh plugin --profile web add ./dsh-deepseek-provider
 
 DeepSeek API Key 只通过 `apiKeyEnv` 引用的环境变量或 DSH 凭证机制存放，不入库、不写入日志：
 
-- 默认引用名 **`DEEPSEEK_API_KEY`**——与内置 `deepseek` 路由同一把钥匙，**零新增配置**（设置页录入一次，模型调用与余额查询共用）；
+- 默认引用名 **`DEEPSEEK_API_KEY`**——与内置 DeepSeek 路由（`deepseek-official`）同一把钥匙，**零新增配置**（设置页录入一次，模型调用与余额查询共用）；
 - 未配置凭证时 pill 显示「未配置」态并给出指引。
 
 ### 使用

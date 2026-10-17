@@ -17,6 +17,7 @@ import {
 } from '@deepseek-ai/dsh-client-ui-primitives'
 import { api, type BalanceDto, type BalanceSnapshotDto } from './api.ts'
 import { PANEL_NS } from './locale.ts'
+import { DEEPSEEK_PROVIDERS } from './providers.ts'
 import { injectCss } from './styles.ts'
 
 // dsh-zhipu-provider bar.tsx 的 token 化样式（类名换 dsb- 前缀，数值与官方产物
@@ -85,9 +86,6 @@ export const ABSENT_MODEL_SOURCE: SnapshotSourceLike = {
   getSnapshot: () => undefined,
   subscribe: () => () => {},
 }
-
-/** 内置 deepseek provider 路由 id（llm-pi-ai 目录路由，与 pill 显隐判定共用） */
-const DEEPSEEK_PROVIDER = 'deepseek'
 
 /** 官方浮层首帧测量样式（定位结果就绪前隐藏，避免闪现在原点）。 */
 const MEASURE_STYLE: CSSProperties = { visibility: 'hidden', left: 0, top: 0 }
@@ -202,7 +200,7 @@ export function createBalancePill(ctx: any) {
 
     // 非 DeepSeek 会话（或选择未就绪 / 选择源缺失）不渲染 pill；组件仍保持挂载，
     // 取数副作用照常运行（数据保温），切到 DeepSeek 时 pill 即刻有数据。
-    if (selection?.provider !== DEEPSEEK_PROVIDER) return null
+    if (!DEEPSEEK_PROVIDERS.has(selection?.provider ?? '')) return null
 
     const status = snapshot?.status
     const primary = snapshot?.balances ? primaryEntry(snapshot.balances) : undefined
