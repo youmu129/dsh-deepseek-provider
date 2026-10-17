@@ -2,8 +2,6 @@
 
 DSH（DeepSeek Harness）插件：Web GUI 底部余额 pill（`conversation.composer.dock`），仅当前会话选用 DeepSeek 模型时显示，摘要展示主币种总额（优先 CNY），点击开面板看各币种总额 / 赠金 / 充值与账户可用性。数据取自 DeepSeek 开放平台 `GET /user/balance`。
 
-**不播种 provider**：内置 DeepSeek 供应商已就绪，本插件只加 pill。
-
 ## 使用方法
 
 1. 安装：`dsh plugin --profile web add youmu129/dsh-deepseek-provider`，重启 `dsh web`（GitHub 简写规格，安装时自动装依赖；lib 构建产物已入库，无需本地构建）；

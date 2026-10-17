@@ -1,7 +1,7 @@
 {
   "name": "dsh-deepseek-provider",
   "version": "0.1.0",
-  "description": "DSH plugin (dual-half): ships a Web GUI balance pill (conversation.composer.dock) for the built-in deepseek provider route — account balance per currency (total / granted / topped-up) fetched from GET {baseUrl}/user/balance at api.deepseek.com, with the API key resolved via the DSH credential seam. No provider seeding: the llm-pi-ai catalog already ships the deepseek route.",
+  "description": "DSH 插件：在 Web GUI 对话输入区底部显示 DeepSeek 账户余额（总额 / 赠送 / 充值）。",
   "type": "module",
   "main": "lib/index.js",
   "exports": {
