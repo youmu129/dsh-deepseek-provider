@@ -4,15 +4,15 @@
 // 赠金 / 充值余额与账户可用性）。仅当前会话选用内置 deepseek provider 时渲染
 // （座位 inject 面绑定的 useModelDirectory 读取会话模型目录，选择源缺失或
 // 选了别家 → 渲染 null）。交互范式复刻 dsh-zhipu-provider 的 bar.tsx（进而
-// 复刻官方 StatsPills / stat-dialog 与 plan-usage）：useAnchoredPosition 视口
-// 钳制定位、useDismissOnOutsidePointer + Escape 关闭、样式对齐官方设计
+// 复刻官方 StatsPills / stat-dialog 与 plan-usage）：CSS 锚点定位（触发元素
+// anchor-name + 面板 position-anchor，视口钳制与翻转交给 @position-try 回退链）、
+// useDismissOnOutsidePointer + Escape 关闭、样式对齐官方设计
 // token（--dsw-* / --dsh-*）。组件在渲染期才取数，不在 apply 期触碰服务。
-import { useCallback, useEffect, useRef, useState, type CSSProperties } from 'react'
+import { useCallback, useEffect, useId, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import {
   IconDatabaseOutlineRegular,
   Tooltip,
-  useAnchoredPosition,
   useDismissOnOutsidePointer,
 } from '@deepseek-ai/dsh-client-ui-primitives'
 import { api, type BalanceDto, type BalanceSnapshotDto } from './api.ts'
@@ -32,7 +32,7 @@ const PILL_CSS = `
 .dsb-val--muted { opacity: .55; }
 .dsb-val--err { color: #d4380d; }
 @media (max-width: 480px) { .dsb-label { display: none; } }
-.dsb-panel { z-index: 1100; box-sizing: border-box; border-radius: var(--dsw-radius-lg); background: var(--dsw-specific-menu); width: max-content; min-width: min(280px, 100vw - 24px); max-width: min(400px, 100vw - 24px); backdrop-filter: var(--dsw-menu-backdrop-filter); --dsw-elevation-stroke-color: var(--dsw-alias-border-l1); box-shadow: var(--dsw-elevation-prominent); color: var(--dsw-alias-label-secondary); cursor: default; border: 0; padding: 16px; font-size: 12px; line-height: 18px; position: fixed; }
+.dsb-panel { z-index: 1100; box-sizing: border-box; border-radius: var(--dsw-radius-lg); background: var(--dsw-specific-menu); width: max-content; min-width: min(280px, 100vw - 24px); max-width: min(400px, 100vw - 24px); backdrop-filter: var(--dsw-menu-backdrop-filter); --dsw-elevation-stroke-color: var(--dsw-alias-border-l1); box-shadow: var(--dsw-elevation-prominent); color: var(--dsw-alias-label-secondary); cursor: default; border: 0; padding: 16px; font-size: 12px; line-height: 18px; position: fixed; position-area: none; top: max(12px, var(--dsh-frame-overlay-top, 12px)); bottom: max(12px, calc(anchor(top) + 8px)); left: max(12px, anchor(left)); right: 12px; position-try-fallbacks: --dsb-stat-window, --dsb-stat-opposite, --dsb-stat-wide-opposite, --dsb-stat-tall, --dsb-stat-viewport; align-self: end; justify-self: start; height: fit-content; min-height: 0; margin: 0; max-height: calc(100dvh - 12px - max(12px, var(--dsh-frame-overlay-top, 12px))); overflow-x: hidden; overflow-y: auto; --dsh-scrollbar-thumb: var(--dsw-alias-scrollbar-bg-l2); --dsh-scrollbar-thumb-hover: var(--dsw-alias-scrollbar-hover-l2); }
 .dsb-title { color: var(--dsw-alias-label-primary); justify-content: space-between; gap: 16px; margin-bottom: 8px; font-weight: 500; display: flex; align-items: center; }
 .dsb-titleLabel { align-items: center; gap: 6px; min-width: 0; display: inline-flex; }
 .dsb-titleLabel svg { flex: none; width: 14px; height: 14px; }
@@ -52,6 +52,13 @@ const PILL_CSS = `
 .dsb-refresh { background: none; border: none; color: inherit; cursor: pointer; opacity: .55; font-size: 13px; line-height: 1; padding: 2px 4px; flex: none; }
 .dsb-refresh:hover:not(:disabled) { opacity: .9; }
 .dsb-refresh:disabled { opacity: .25; cursor: default; }
+/* 定位回退链（对齐官方 stat-dialog.module.css）：默认在触发元素上方、左对齐；
+   视口放不下时依次尝试贴左窗、翻到下方、贴窗翻下方、放宽左钳制、整窗铺开 */
+@position-try --dsb-stat-window { position-area: none; top: max(12px, var(--dsh-frame-overlay-top, 12px)); bottom: max(12px, calc(anchor(top) + 8px)); left: 12px; right: 12px; margin: 0; align-self: safe end; justify-self: safe end; }
+@position-try --dsb-stat-opposite { top: max(12px, calc(anchor(bottom) + 8px)); bottom: 12px; align-self: start; }
+@position-try --dsb-stat-wide-opposite { top: max(12px, calc(anchor(bottom) + 8px)); bottom: 12px; left: 12px; right: 12px; align-self: start; justify-self: safe end; }
+@position-try --dsb-stat-tall { position-area: none; top: max(12px, var(--dsh-frame-overlay-top, 12px)); bottom: 12px; left: max(12px, anchor(left)); right: 12px; margin: 0; align-self: safe start; justify-self: start; }
+@position-try --dsb-stat-viewport { position-area: none; inset: max(12px, var(--dsh-frame-overlay-top, 12px)) 12px 12px; margin: 0; align-self: safe start; justify-self: safe end; }
 `
 
 type Translate = (key: string, params?: Record<string, string | number>) => string
@@ -86,9 +93,6 @@ export const ABSENT_MODEL_SOURCE: SnapshotSourceLike = {
   getSnapshot: () => undefined,
   subscribe: () => () => {},
 }
-
-/** 官方浮层首帧测量样式（定位结果就绪前隐藏，避免闪现在原点）。 */
-const MEASURE_STYLE: CSSProperties = { visibility: 'hidden', left: 0, top: 0 }
 
 const CURRENCY_SYMBOLS: Record<string, string> = {
   CNY: '¥',
@@ -146,16 +150,30 @@ export function createBalancePill(ctx: any) {
     const [open, setOpen] = useState(false)
     const rootRef = useRef<HTMLSpanElement | null>(null)
     const panelRef = useRef<HTMLDivElement | null>(null)
-    // 复刻官方 useStatDialog：锚定定位 + 外点关闭 + Escape 关闭
-    const pos = useAnchoredPosition({ open, anchorRef: rootRef, panelRef, side: 'top', gap: 8, margin: 12 })
+    // 复刻官方 useStatDialog：CSS 锚点定位（触发元素命名 anchor-name，portal
+    // 面板经 position-anchor 引用同名锚点，钳制与翻转由 CSS 回退链完成）
+    const anchorName = `--dsb-stat-${useId().replaceAll(':', '')}`
     useDismissOnOutsidePointer(rootRef, open, setOpen, panelRef)
     useEffect(() => {
       if (!open) return
       const onKeyDown = (e: KeyboardEvent) => {
         if (e.key === 'Escape') setOpen(false)
       }
+      // 键盘激活相邻 pill 只触发 click 不触发 pointerdown：捕获期外点 click
+      // 先收起本面板，再让相邻触发器开自己的（与官方 useStatDialog 一致）
+      const onClick = (e: MouseEvent) => {
+        if (e.target instanceof Node
+          && rootRef.current?.contains(e.target) !== true
+          && panelRef.current?.contains(e.target) !== true) {
+          setOpen(false)
+        }
+      }
       document.addEventListener('keydown', onKeyDown)
-      return () => document.removeEventListener('keydown', onKeyDown)
+      document.addEventListener('click', onClick, true)
+      return () => {
+        document.removeEventListener('keydown', onKeyDown)
+        document.removeEventListener('click', onClick, true)
+      }
     }, [open])
 
     const load = useCallback(async () => {
@@ -220,7 +238,7 @@ export function createBalancePill(ctx: any) {
               : t('panel.title')
 
     return (
-      <span className="dsb-root" ref={rootRef}>
+      <span className="dsb-root" ref={rootRef} style={{ anchorName }}>
         <button
           type="button"
           className="dsb-pill"
@@ -256,7 +274,7 @@ export function createBalancePill(ctx: any) {
               className="dsb-panel"
               role="dialog"
               aria-label={t('panel.title')}
-              style={pos ?? MEASURE_STYLE}
+              style={{ positionAnchor: anchorName }}
             >
               <div className="dsb-title">
                 <span className="dsb-titleLabel">
