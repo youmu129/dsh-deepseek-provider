@@ -1,0 +1,6 @@
+{
+  "meta": {
+    "title": "DeepSeek balance",
+    "description": "Shows a balance pill under the composer only in DeepSeek sessions: total balance in the primary currency (CNY preferred), with a panel for per-currency total, granted and topped-up amounts and account availability. Data comes from the DeepSeek open platform GET /user/balance. Does not seed any provider route; it serves the built-in DeepSeek route and resolves the same DEEPSEEK_API_KEY credential per request (Settings > Credentials or the environment). Without a key the pill shows an unconfigured hint."
+  }
+}

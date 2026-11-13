@@ -1,0 +1,6 @@
+{
+  "meta": {
+    "title": "DeepSeek 余额",
+    "description": "仅当前会话选用 DeepSeek 模型时，在输入卡片下方显示余额 pill：主币种总额（优先 CNY），点击面板查看各币种总额 / 赠金 / 充值与账户可用性。数据取自 DeepSeek 开放平台 GET /user/balance。不播种 provider 路由，服务内置 DeepSeek 路由，经同一把 DEEPSEEK_API_KEY 凭证按请求解析（设置 > 凭证或环境变量）；未配置时 pill 显示未配置指引。"
+  }
+}
